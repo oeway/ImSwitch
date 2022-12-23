@@ -98,11 +98,11 @@ class SIMController(LiveUpdatedController):
 
 
     def initHamamatsuSLM(self):
-        self.hamamatsuslm = nip.HAMAMATSU_SLM() # FIXME: Add parameters
-        #def __init__(self, dll_path = None, OVERDRIVE = None, use_corr_pattern = None, wavelength = None, corr_pattern_path = None):
-        allPatterns = self._master.simManager.allPatterns[self.patternID]
+        import NanoImagingPack as nip
+        self.SLM = nip.HAMAMATSU_SLM()
+        allPatterns = self._master.simManager.allPatterns
         for im_number, im in enumerate(allPatterns):
-            self.hamamatsuslm.send_dat(im, im_number)
+            self.SLM.send_dat(im, im_number)
         
         
         
