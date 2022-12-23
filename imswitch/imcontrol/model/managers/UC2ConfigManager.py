@@ -22,25 +22,30 @@ class UC2ConfigManager(SignalInterface):
         self.__logger = initLogger(self)
 
         #TODO: HARDCODED!!
-        self.ESP32 = lowLevelManagers["rs232sManager"]["ESP32"]._esp32
-        
-        # get default configs
-        try:
-            self.defaultConfigPath = os.path.join(dirtools.UserFileDirs.Root, "uc2_configs", Info.defaultConfig)
-        except:
-            self.defaultConfigPath = os.path.join(dirtools.UserFileDirs.Root, "uc2_configs", "pindefWemos.json")
-                    
-        # initialize the firmwareupdater
-        self.firmwareUpdater = uc2.updater(parent=self.ESP32)
-        self.firmwareConfigurator = self.ESP32.config
-        # alternatively: self.firmwareUpdater = self.ESP32.updater
-        try:
-            with open(self.defaultConfigPath) as jf:
-                self.defaultConfig = json.load(jf)
-        except Exception as e:
-            self.__logger.error(f"Could not load default config from {self.defaultConfigPath}: {e}")
-            self.defaultConfig = self.config.loadDefaultConfig()
+        if "ESP32" in lowLevelManagers["rs232sManager"]: 
+            self.ESP32 = lowLevelManagers["rs232sManager"]["ESP32"]._esp32
+            
+            # get default configs
+            try:
+                self.defaultConfigPath = os.path.join(dirtools.UserFileDirs.Root, "uc2_configs", Info.defaultConfig)
+            except:
+                self.defaultConfigPath = os.path.join(dirtools.UserFileDirs.Root, "uc2_configs", "pindefWemos.json")
+                        
+            # initialize the firmwareupdater
+            self.firmwareUpdater = uc2.updater(parent=self.ESP32)
+            self.firmwareConfigurator = self.ESP32.config
+            # alternatively: self.firmwareUpdater = self.ESP32.updater
+            try:
+                with open(self.defaultConfigPath) as jf:
+                    self.defaultConfig = json.load(jf)
+            except Exception as e:
+                self.__logger.error(f"Could not load default config from {self.defaultConfigPath}: {e}")
+                self.defaultConfig = self.config.loadDefaultConfig()
 
+        else: 
+            self.__logger.error("The ESP32 module has to be enalbed in order to use the UC2ConfigManager")
+
+            
     def getDefaultConfig(self):
         # this gets the default config from the ESP32 from the disk
         return self.defaultConfig
