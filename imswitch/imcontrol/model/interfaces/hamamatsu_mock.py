@@ -71,6 +71,8 @@ class MockHamamatsu(Driver):
         self.number_image_buffers = 0
         self.hcam_data = []
 
+    
+
         self.mock_data_max_value = np.random.randint(65536)
         self.mock_acquisiton_running = False
         self.mock_start_time = time.time_ns()

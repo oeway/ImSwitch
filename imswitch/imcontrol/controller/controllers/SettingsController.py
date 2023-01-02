@@ -13,6 +13,7 @@ from ..basecontrollers import ImConWidgetController
 class SettingsControllerParams:
     model: Any
     binning: Any
+    readoutspeed: Any
     frameMode: Any
     x0: Any
     y0: Any
@@ -46,7 +47,7 @@ class SettingsController(ImConWidgetController):
 
             self._widget.addDetector(
                 dName, dManager.model, dManager.parameters, dManager.actions,
-                dManager.supportedBinnings, self._setupInfo.rois
+                dManager.supportedBinnings, dManager.supportedReadoutspeed, self._setupInfo.rois
             )
 
         self.roiAdded = False
@@ -98,6 +99,7 @@ class SettingsController(ImConWidgetController):
                 self.allParams[detectorName] = SettingsControllerParams(
                     model=detectorTree.p.param('Model'),
                     binning=framePar.param('Binning'),
+                    readoutspeed=framePar.param('Readout Mode'),
                     frameMode=framePar.param('Mode'),
                     x0=framePar.param('X0'),
                     y0=framePar.param('Y0'),
@@ -113,6 +115,7 @@ class SettingsController(ImConWidgetController):
 
                 params = self.allParams[detectorName]
                 params.binning.sigValueChanged.connect(self.updateBinning)
+                params.readoutspeed.sigValueChanged.connect(self.updateReadoutspeed)
                 params.frameMode.sigValueChanged.connect(self.updateFrame)
                 params.applyROI.sigActivated.connect(self.adjustFrame)
                 params.newROI.sigActivated.connect(self.updateFrame)
@@ -312,6 +315,13 @@ class SettingsController(ImConWidgetController):
         )
         self.updateSharedAttrs()
 
+    def updateReadoutspeed(self):
+        """ Update a new readout mode to the detector. """
+        self.getDetectorManagerFrameExecFunc()(
+            lambda c: c.setReadoutspeed(int(self.allParams[c.name].readoutspeed.value()))
+        )
+        self.updateSharedAttrs()
+
     def updateParamsFromDetector(self, *, detector):
         """ Update the parameter values from the detector. """
 
@@ -326,6 +336,7 @@ class SettingsController(ImConWidgetController):
 
         # Frame
         params.binning.setValue(detector.binning)
+        params.readoutspeed.setValue(detector._readoutspeed) #need to be debugged!!!
         frameStart = detector.frameStart
         shape = detector.shape
         fullShape = detector.fullShape

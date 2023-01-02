@@ -14,6 +14,12 @@ class HamamatsuManager(DetectorManager):
       (list indexing starts at 0); set this to an invalid value, e.g. the
       string "mock" to load a mocker
     - ``hamamatsu`` -- dictionary of DCAM API properties to pass to the driver
+    - ``C15440-20UP`` -- this Manager is especially for Orca Fusion BT which is not default crop the img
+    DCAM_IDSTR_MODEL	Camera Model Name. The model number of the device, e.g. "C11440-22C". Some device may have additional options. Those options are described in this string after "with".
+    
+            'Camera readout speed': DetectorNumberParameter(group='Acquisition mode', value = 0,
+                                                            options=[0,1,2], editable=True)
+    
     """
 
     def __init__(self, detectorInfo, name, **_lowLevelManagers):
@@ -21,6 +27,7 @@ class HamamatsuManager(DetectorManager):
 
         self._camera = self._getCameraObj(detectorInfo.managerProperties['cameraListIndex'])
         self._binning = 1
+        self._readoutspeed = 3  ## 1=ultraquiet, 3=fastscan
 
         for propertyName, propertyValue in detectorInfo.managerProperties['hamamatsu'].items():
             self._camera.setPropertyValue(propertyName, propertyValue)
@@ -53,7 +60,7 @@ class HamamatsuManager(DetectorManager):
         }
 
         super().__init__(detectorInfo, name, fullShape=fullShape, supportedBinnings=[1, 2, 4],
-                         model=model, parameters=parameters, croppable=True)
+                         supportedReadoutspeed=[1, 2, 3], model=model, parameters=parameters, croppable=True)
         self._updatePropertiesFromCamera()
         super().setParameter('Set exposure time', self.parameters['Real exposure time'].value)
 
@@ -103,7 +110,13 @@ class HamamatsuManager(DetectorManager):
             lambda: self._camera.setPropertyValue('binning', coded)
         )
 
-    def setParameter(self, name, value):
+    def setReadoutspeed(self, readoutspeed):
+        super().setReadoutspeed(readoutspeed)
+        self._camera.setPropertyValue('readout_speed', readoutspeed)
+    
+
+
+    def _setParameter(self, name, value):
         super().setParameter(name, value)
 
         if name == 'Set exposure time':
