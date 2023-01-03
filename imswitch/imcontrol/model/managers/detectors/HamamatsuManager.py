@@ -113,6 +113,7 @@ class HamamatsuManager(DetectorManager):
     def setReadoutspeed(self, readoutspeed):
         super().setReadoutspeed(readoutspeed)
         self._camera.setPropertyValue('readout_speed', readoutspeed)
+        print('Set readout mode to ', readoutspeed)
     
 
 
