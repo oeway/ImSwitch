@@ -55,12 +55,18 @@ class HamamatsuManager(DetectorManager):
                                                              'External "start-trigger"',
                                                              'External "frame-trigger"'],
                                                     editable=True),
+            'Readout mode': DetectorListParameter(group='Acquisition mode',
+                                                    value='Fast mode',
+                                                    options=['Ultraquiet scan',
+                                                             'Standard scan',
+                                                             'Fast scan'],
+                                                    editable=True),
             'Camera pixel size': DetectorNumberParameter(group='Miscellaneous', value=0.1,
                                                          valueUnits='µm', editable=True)
         }
 
         super().__init__(detectorInfo, name, fullShape=fullShape, supportedBinnings=[1, 2, 4],
-                         supportedReadoutspeed=[1, 2, 3], model=model, parameters=parameters, croppable=True)
+                        model=model, parameters=parameters, croppable=True)
         self._updatePropertiesFromCamera()
         super().setParameter('Set exposure time', self.parameters['Real exposure time'].value)
 
@@ -110,10 +116,6 @@ class HamamatsuManager(DetectorManager):
             lambda: self._camera.setPropertyValue('binning', coded)
         )
 
-    def setReadoutspeed(self, readoutspeed):
-        super().setReadoutspeed(readoutspeed)
-        self._camera.setPropertyValue('readout_speed', readoutspeed)
-        print('Set readout mode to ', readoutspeed)
     
 
 
@@ -125,6 +127,8 @@ class HamamatsuManager(DetectorManager):
             self._updatePropertiesFromCamera()
         elif name == 'Trigger source':
             self._setTriggerSource(value)
+        elif name == 'Readout mode':
+            self._setReadoutspeed(value)
 
         return self.parameters
 
@@ -150,6 +154,7 @@ class HamamatsuManager(DetectorManager):
             self._performSafeCameraAction(
                 lambda: self._camera.setPropertyValue('trigger_mode', 6)
             )
+            print(f'lalalalalal')
 
         elif source == 'External "frame-trigger"':
             self._performSafeCameraAction(
@@ -160,6 +165,25 @@ class HamamatsuManager(DetectorManager):
             )
         else:
             raise ValueError(f'Invalid trigger source "{source}"')
+
+    def _setReadoutspeed(self, mode):
+        if mode == 'Ultraquiet scan':
+            self._performSafeCameraAction(
+                lambda: self._camera.setPropertyValue('readout_speed', 1)
+            )
+            print('Set readout mode to ', mode)
+        elif mode == 'Standard scan':
+            self._performSafeCameraAction(
+                lambda: self._camera.setPropertyValue('readout_speed', 2)
+            )
+            print('Set readout mode to ', mode)
+        elif mode == 'Fast scan':
+            self._performSafeCameraAction(
+                lambda: self._camera.setPropertyValue('readout_speed', 3)
+            )
+            print('Set readout mode to ', mode)
+        else:
+            raise ValueError(f'Invalid readout mode "{mode}"')
 
     def _performSafeCameraAction(self, function):
         """ This method is used to change those camera properties that need

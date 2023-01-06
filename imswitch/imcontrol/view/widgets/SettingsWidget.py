@@ -11,22 +11,19 @@ class CamParamTree(ParameterTree):
     """ Making the ParameterTree for configuration of the detector during imaging
     """
 
-    def __init__(self, detectorParameters, detectorActions, supportedBinnings, supportedReadoutspeed, roiInfos,
+    def __init__(self, detectorParameters, detectorActions, supportedBinnings, roiInfos,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         BinTip = ("Sets binning mode. Binning mode specifies if and how \n"
                   "many pixels are to be read out and interpreted as a \n"
                   "single pixel value.")
-        ModeTip = ("1: ultra quiet, 3: fast scan")
 
         # Parameter tree for the detector configuration
         params = [{'name': 'Model', 'type': 'str', 'readonly': True},
                   {'name': 'Image frame', 'type': 'group', 'children': [
                       {'name': 'Binning', 'type': 'list', 'value': 1,                     
                        'values': supportedBinnings, 'tip': BinTip},
-                      {'name': 'Readout Mode', 'type': 'list', 'value': 3,                     
-                       'values': supportedReadoutspeed, 'tip': ModeTip},
                       {'name': 'Mode', 'type': 'list', 'value': 'Full chip',
                        'values': ['Full chip'] + list(roiInfos.keys()) + ['Custom']},
                       {'name': 'X0', 'type': 'int', 'value': 0, 'limits': (0, 65535)},
@@ -183,9 +180,9 @@ class SettingsWidget(Widget):
         self.nextDetectorButton.clicked.connect(self.sigNextDetectorClicked)
 
     def addDetector(self, detectorName, detectorModel, detectorParameters, detectorActions,
-                    supportedBinnings, supportedReadoutspeed, roiInfos):
+                    supportedBinnings, roiInfos):
         self.trees[detectorName] = CamParamTree(detectorParameters, detectorActions,
-                                                supportedBinnings, supportedReadoutspeed, roiInfos)
+                                                supportedBinnings, roiInfos)
         self.stack.addWidget(self.trees[detectorName])
 
         self.detectorList.addItem(f'{detectorModel} ({detectorName})', detectorName)

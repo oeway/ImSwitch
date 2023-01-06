@@ -68,7 +68,6 @@ class DetectorManager(SignalInterface):
     @abstractmethod
     def __init__(self, detectorInfo, name: str, fullShape: Tuple[int, int],
                  supportedBinnings: List[int], model: str, *,
-                 supportedReadoutspeed: List[int],
                  parameters: Optional[Dict[str, DetectorParameter]] = None,
                  actions: Optional[Dict[str, DetectorAction]] = None,
                  croppable: bool = True, 
@@ -104,7 +103,6 @@ class DetectorManager(SignalInterface):
 
         self.__fullShape = fullShape
         self.__supportedBinnings = supportedBinnings
-        self.__supportedReadoutspeed = supportedReadoutspeed
         self.__image = np.array([])
 
         self.__forAcquisition = detectorInfo.forAcquisition
@@ -121,7 +119,6 @@ class DetectorManager(SignalInterface):
         self.setRGB(isRGB)
 
         self.setBinning(supportedBinnings[0])
-        self.setReadoutspeed(supportedReadoutspeed[2])
 
     def updateLatestFrame(self, init):
         """ :meta private: """
@@ -155,14 +152,6 @@ class DetectorManager(SignalInterface):
             raise ValueError(f'Specified binning value "{binning}" not supported by the detector')
 
         self._binning = binning
-
-    def setReadoutspeed(self, readoutspeed: int) -> None:
-        """ Sets the detector's readout mode """
-
-        if readoutspeed not in self.__supportedReadoutspeed:
-            raise ValueError(f'Specified readout mode value "{readoutspeed}" not supported by the detector')
-
-        self._readoutspeed = readoutspeed
     
     @property
     def name(self) -> str:
@@ -187,11 +176,6 @@ class DetectorManager(SignalInterface):
     def supportedBinnings(self) -> List[int]:
         """ Supported binnings as a list. """
         return self.__supportedBinnings
-
-    @property
-    def supportedReadoutspeed(self) -> List[int]:
-        """ Supported readout mode as a list. """
-        return self.__supportedReadoutspeed
 
     @property
     def frameStart(self) -> Tuple[int, int]:
