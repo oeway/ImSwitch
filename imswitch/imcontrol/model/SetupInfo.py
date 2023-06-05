@@ -44,6 +44,9 @@ class DetectorInfo(DeviceInfo):
 
     forFocusLock: bool = False
     """ Whether the detector is used for focus lock. """
+    
+    ExtPackage: Optional[str] = None
+    """ External package to be imported. """
 
 
 @dataclass(frozen=True)
