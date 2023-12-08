@@ -129,6 +129,10 @@ class TemperatureController(ImConWidgetController):
     def updateMeasurements(self):
         while self.is_measure:
             self.temperatureValue  = self.temperatureController.get_temperature()
+            if self.temperatureValue < -100 or self.temperatureValue > 100:
+                self.temperatureValue = 0
+                return 
+            
             self._widget.updateTemperature(self.temperatureValue)
             
             # logging temperature to file
